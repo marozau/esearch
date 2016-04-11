@@ -20,12 +20,12 @@ public class IndexPumper {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexPumper.class);
 
-    public static final int depth = 1;
+    public static final int depth = 0;
     public static final Set<String> except = new HashSet<>(Arrays.asList("http", "/css", "/favicon", "/live-coverage-syndication"));
 
     public static void main(String[] args) throws IOException {
         final IndexPumper pumper = new IndexPumper();
-        pumper.parse("http://ru.euronews.com", 0);
+        pumper.parse("http://ru.euronews.com", depth);
         logger.info("{}:{} - completed", "http://ru.euronews.com");
     }
 
