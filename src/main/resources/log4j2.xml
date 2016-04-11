@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Gelf name="gelf" host="tcp:192.168.40.143" port="50001" version="1.1" extractStackTrace="true"
+              filterStackTrace="true" mdcProfiling="true" includeFullMdc="true" maximumMessageSize="8192"
+              originHost="%host{fqdn}" additionalFieldTypes="index=String,type=String">
+            <Field name="timestamp" pattern="%d{dd MMM yyyy HH:mm:ss,SSS}" />
+            <Field name="level" pattern="%level" />
+            <Field name="simpleClassName" pattern="%C{1}" />
+            <Field name="className" pattern="%C" />
+            <Field name="server" pattern="%host" />
+            <Field name="server.fqdn" pattern="%host{fqdn}" />
+            <Field name="server.address" pattern="%host{address}" />
+
+            <!-- This is a static field -->
+            <Field name="index" literal="esearch" />
+            <Field name="type" literal="web" />
+
+            <!-- This is a field using MDC -->
+            <!--<Field name="mdcField2" mdc="mdcField2" />-->
+            <!--<DynamicMdcFields regex="mdc.*" />-->
+            <!--<DynamicMdcFields regex="(mdc|MDC)fields" />-->
+        </Gelf>
+        <Console name="STDOUT_SYNC" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </Console>
+
+        <Async name="STDOUT">
+            <AppenderRef ref="STDOUT_SYNC"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="STDOUT" level="DEBUG"/>
+            <AppenderRef ref="gelf" level="info"/>
+        </Root>
+    </Loggers>
+</Configuration>
