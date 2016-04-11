@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration packages="biz.paluch.logging.gelf.log4j2">
     <Appenders>
         <Gelf name="gelf" host="tcp:192.168.40.143" port="50001" version="1.1" extractStackTrace="true"
               filterStackTrace="true" mdcProfiling="true" includeFullMdc="true" maximumMessageSize="8192"
@@ -15,11 +15,6 @@
             <!-- This is a static field -->
             <Field name="index" literal="esearch" />
             <Field name="type" literal="web" />
-
-            <!-- This is a field using MDC -->
-            <!--<Field name="mdcField2" mdc="mdcField2" />-->
-            <!--<DynamicMdcFields regex="mdc.*" />-->
-            <!--<DynamicMdcFields regex="(mdc|MDC)fields" />-->
         </Gelf>
         <Console name="STDOUT_SYNC" target="SYSTEM_OUT">
             <PatternLayout>
@@ -35,7 +30,7 @@
     <Loggers>
         <Root level="DEBUG">
             <AppenderRef ref="STDOUT" level="DEBUG"/>
-            <AppenderRef ref="gelf" level="info"/>
+            <AppenderRef ref="gelf" level="INFO"/>
         </Root>
     </Loggers>
 </Configuration>

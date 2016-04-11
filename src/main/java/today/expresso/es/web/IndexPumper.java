@@ -20,13 +20,14 @@ public class IndexPumper {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexPumper.class);
 
-    public static final int depth = 0;
     public static final Set<String> except = new HashSet<>(Arrays.asList("http", "/css", "/favicon", "/live-coverage-syndication"));
 
     public static void main(String[] args) throws IOException {
+        final String url = System.getProperty("index.url");
+        final int depth = Integer.valueOf(System.getProperty("index.depth", "0"));
         final IndexPumper pumper = new IndexPumper();
-        pumper.parse("http://ru.euronews.com", depth);
-        logger.info("{}:{} - completed", "http://ru.euronews.com");
+        pumper.parse(url, depth);
+        logger.info("{}:{} - completed", depth, url);
     }
 
     public void parse(String url, int depth) throws IOException {
@@ -71,9 +72,9 @@ public class IndexPumper {
                         .filter(attribute1 -> !attribute1.getValue().trim().isEmpty())
                         .forEach(attribute -> json.put(attribute.getKey(), attribute.getValue()));
                 if (json.length() != 0) {
-                    json.put(NAME, node.nodeName());
-                    json.put(URI, node.baseUri());
-                    json.put(DEPTH, depth);
+                    json.put(NAME, node.nodeName())
+                            .put(URI, node.baseUri())
+                            .put(DEPTH, depth);
                     logger.info(json.toString());
                 }
             }

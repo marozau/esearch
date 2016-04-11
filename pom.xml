@@ -41,8 +41,16 @@
         <dependency>
             <groupId>biz.paluch.logging</groupId>
             <artifactId>logstash-gelf</artifactId>
-            <version>1.8.0</version>
+            <version>1.8.1</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.graylog2.log4j2</groupId>-->
+            <!--<artifactId>log4j2-gelf</artifactId>-->
+            <!--<version>1.1.0</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.json</groupId>
@@ -65,6 +73,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -73,11 +82,11 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <outputDirectory>${project.build.directory}/${artifactId}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/resources</directory>
-                                    <filtering>false</filtering>
+                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -93,11 +102,31 @@
                         <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals><goal>copy-dependencies</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${artifactId}/libs</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputFile>${project.build.directory}/${artifactId}/${artifactId}-${version}.jar</outputFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 
 </project>
