@@ -1,0 +1,12 @@
+index-pumper:
+  image: expressotoday/esearch:latest
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: true
+  environment:
+    OPTIONS: "-Dindex.url=http://ru.euronews.com -Dindex.depth=0"
+    LOGSTASH_PROTO: tcp
+    LOGSTASH_HOST: 188.166.15.12
+    LOGSTASH_PORT: 50001
+  volumes:
+    - /var/log/index-pumper

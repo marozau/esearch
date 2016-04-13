@@ -22,17 +22,27 @@ public class IndexPumper {
 
     public static final Set<String> except = new HashSet<>(Arrays.asList("http", "/css", "/favicon", "/live-coverage-syndication"));
 
-    public static void main(String[] args) throws IOException {
-        final String url = System.getProperty("index.url");
-        final int depth = Integer.valueOf(System.getProperty("index.depth", "0"));
-        final IndexPumper pumper = new IndexPumper();
-        pumper.parse(url, depth);
-        logger.info("{}:{} - completed", depth, url);
+    private final int initDepth;
+    private final String source;
+
+    private final NodeLogger nodeLogger;
+
+    public IndexPumper(String source, int depth) {
+        this.source = source;
+        this.initDepth = depth;
+
+        this.nodeLogger = new NodeLogger(
+                new JSONObject().put("source", source)
+        );
     }
 
-    public void parse(String url, int depth) throws IOException {
-        logger.info("{}:{}", depth, url);
-        final Document doc = Jsoup.connect(url)
+    public void parse() throws IOException {
+        parse(source, initDepth);
+    }
+
+    private void parse(String source, int depth) throws IOException {
+        logger.info("{}:{}", getDepth(depth), source);
+        final Document doc = Jsoup.connect(source)
                 .userAgent(UserAgent.get())
                 .timeout(5000)
                 .followRedirects(false)
@@ -41,9 +51,6 @@ public class IndexPumper {
         doc.traverse(new NodeVisitor() {
 
             public static final String HREF_ATTR = "href";
-            public static final String URI = "node_uri";
-            public static final String DEPTH = "node_depth";
-            public static final String NAME = "node_name";
 
             @Override
             public void head(Node node, int i) {
@@ -53,31 +60,29 @@ public class IndexPumper {
             public void tail(Node node, int i) {
                 if (node.attributes().size() == 0)
                     return;
-                toLog(node);
+                nodeLogger.toLog(node, source, getDepth(depth));
 
                 final String href = node.attr(HREF_ATTR);
                 if (href != null && href.length() > 1 && !except.stream().anyMatch(href::startsWith)) {
                     try {
                         if (depth > 0)
-                            parse(url + href, depth - 1);
+                            parse(source + href, depth - 1);
                     } catch (IOException e) {
                         logger.error(node.toString(), e);
                     }
                 }
             }
-
-            private void toLog(Node node) {
-                final JSONObject json = new JSONObject();
-                node.attributes().asList().stream()
-                        .filter(attribute1 -> !attribute1.getValue().trim().isEmpty())
-                        .forEach(attribute -> json.put(attribute.getKey(), attribute.getValue()));
-                if (json.length() != 0) {
-                    json.put(NAME, node.nodeName())
-                            .put(URI, node.baseUri())
-                            .put(DEPTH, depth);
-                    logger.info(json.toString());
-                }
-            }
         });
+    }
+
+    private int getDepth(int depth) {
+        return initDepth - depth;
+    }
+
+    public static void main(String[] args) throws IOException {
+        final String url = System.getProperty("index.url");
+        final int depth = Integer.valueOf(System.getProperty("index.depth", "0"));
+        new IndexPumper(url, depth).parse();
+        logger.info("{}:{} - completed", depth, url);
     }
 }

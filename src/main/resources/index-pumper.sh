@@ -31,8 +31,6 @@ if [ -z "$MAIN_CLASS" ]; then
   MAIN_CLASS="today.expresso.es.web.IndexPumper"
 fi
 
-OPTIONS="-Dindex.url=http://ru.euronews.com -Dindex.depth=0"
-
 if [ -z "$OPTIONS" ]; then
   echo "ERROR: empty OPTIONS"
   exit 1
